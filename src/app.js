@@ -35,14 +35,15 @@ textArea.addEventListener('paste', (e) => {
     // Move down Current Update
     let sections = table.split('<tr');
     // console.log(sections);
-    const findCurrentUpdate = (e) => e.indexOf('Current &') !== -1;
-    let tableRow = sections.findIndex(findCurrentUpdate) + 1;
-    let currentUpdateSection = sections[tableRow]
+    let focusSection = 'Current &';
+    const findCurrentUpdate = (e) => e.indexOf(focusSection) !== -1;
+    let csTableRow = sections.findIndex(findCurrentUpdate) + 1;
+    let currentUpdateSection = sections[csTableRow]
     // console.log(currentUpdateSection);
-    let lines = currentUpdateSection.split('<span');
+    // csLines = (current section) Lines
+    let csLines = currentUpdateSection.split('<span');
 
-    let currentDateString = lines[1].substring(lines[1].indexOf('>') + 1).substring(0, lines[1].substring(lines[1].indexOf('>') + 1).indexOf('</span>'));
-
+    let currentDateString = csLines[1].substring(csLines[1].indexOf('>') + 1).substring(0, csLines[1].substring(csLines[1].indexOf('>') + 1).indexOf('</span>'));
     let currentUpdateDate = new Date(currentDateString);
     let now = new Date();
     // Format Now Date for template
@@ -50,24 +51,57 @@ textArea.addEventListener('paste', (e) => {
     let nowDateString = now.toLocaleDateString('en-US', options);
     
     // Inserting 4 indexes before Current Update for Next Update - date, time, content, cadence
-    lines.splice(1, 0, lines[1].replace(currentDateString, nowDateString));
-    lines.splice(2, 0, lines[3].replace(lines[3].substring(lines[3].indexOf('>') + 1).substring(0, lines[3].substring(lines[3].indexOf('>') + 1).indexOf('</span>')), '[H:MM AM/PM]'));
-    lines.splice(3, 0, lines[5].replace(lines[5].substring(lines[5].indexOf('>') + 1).substring(0, lines[5].substring(lines[5].indexOf('>') + 1).indexOf('</span>')), "[The next update's text goes here...]"));
-    lines.splice(4, 0, lines[7].replace(lines[7].substring(lines[7].indexOf('>') + 1).substring(0, lines[7].substring(lines[7].indexOf('>') + 1).indexOf('</span>')), 'The next update on this issue will come no later than [H:MM AM/PM]'));
+    csLines.splice(1, 0, csLines[1].replace(currentDateString, nowDateString));
+    csLines.splice(2, 0, csLines[3].replace(csLines[3].substring(csLines[3].indexOf('>') + 1).substring(0, csLines[3].substring(csLines[3].indexOf('>') + 1).indexOf('</span>')), '[H:MM AM/PM]'));
+    csLines.splice(3, 0, csLines[5].replace(csLines[5].substring(csLines[5].indexOf('>') + 1).substring(0, csLines[5].substring(csLines[5].indexOf('>') + 1).indexOf('</span>')), "[The next update's text goes here...]"));
+    csLines.splice(4, 0, csLines[7].replace(csLines[7].substring(csLines[7].indexOf('>') + 1).substring(0, csLines[7].substring(csLines[7].indexOf('>') + 1).indexOf('</span>')), 'The next update on this issue will come no later than [H:MM AM/PM]'));
+    // Grab 3 elements from Prior Update to move to Previous Updates Section 
+    let prevDate = csLines[csLines.length-3];
+    let prevTime = csLines[csLines.length-2];
+    let prevContent = csLines[csLines.length-1].substring(0,csLines[csLines.length-1].indexOf('</td>'));
     // Remove last 4 - next update time boilerplate (Current) and previous update's date, time and content
-    lines.pop(); lines.pop(); lines.pop(); lines.pop();
-    
+    csLines.pop(); csLines.pop(); csLines.pop(); csLines.pop();
+    console.log(prevDate)
+    console.log(prevTime)
+
     // If dates are the same, remove second date value
     let currentDateCheck = currentUpdateDate.getMonth() + '/' + currentUpdateDate.getDate() + '/' + currentUpdateDate.getFullYear();
     let nowDateCheck = now.getMonth() + '/' + now.getDate() + '/' + now.getFullYear();
     if (currentDateCheck === nowDateCheck) {
-        lines.splice(5, 1);
+        csLines.splice(5, 1);
+    }
+    // Add closing tags for table data (td) and row (tr) to ensure there is no broken formating
+    csLines[csLines.length-1] = csLines[csLines.length-1]+'</td></tr>';
+
+    // Previous Section
+    const findPrevUpdate = (e) => e.indexOf('Previous Update') !== -1;
+    let psTableRow = sections.findIndex(findPrevUpdate) + 1;
+    let prevUpdateSection = sections[psTableRow]
+    // console.log(prevUpdateSection);
+    let psLines = prevUpdateSection.split('<span');
+    console.log(psLines);
+    let firstPrevDateString = psLines[1].substring(psLines[1].indexOf('>') + 1).substring(0, psLines[1].substring(psLines[1].indexOf('>') + 1).indexOf('</span>'));
+    let firstPrevUpdateDate = new Date(firstPrevDateString);
+    let prevUpdateDate = new Date(prevDate.substring(prevDate.indexOf('>') + 1).substring(0, prevDate.substring(prevDate.indexOf('>') + 1).indexOf('</span>')));
+
+    // Inserting 3 indexes before first Prev Update
+    psLines.splice(1, 0, prevDate);
+    psLines.splice(2, 0, prevTime);
+    psLines.splice(3, 0, prevContent);
+    
+    // If dates are the same, remove second date value
+    let firstPrevDateCheck = firstPrevUpdateDate.getMonth() + '/' + firstPrevUpdateDate.getDate() + '/' + firstPrevUpdateDate.getFullYear();
+    let prevDateCheck = prevUpdateDate.getMonth() + '/' + prevUpdateDate.getDate() + '/' + prevUpdateDate.getFullYear();
+    if (prevDateCheck === firstPrevDateCheck) {
+        psLines[3] = psLines[3]+psLines[4].substring(psLines[4].indexOf('<p'));
+        psLines.splice(4, 1);
     }
 
     // Rebuild table
-    sections.splice(tableRow,1,lines.join('<span'));
+    sections.splice(csTableRow,1,csLines.join('<span'));
+    sections.splice(psTableRow,1,psLines.join('<span'));
     table = sections.join('<tr')
-    console.log(table);
+    // console.log(table);
 
 
     // Grab values and concat subject
