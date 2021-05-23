@@ -81,8 +81,7 @@ const handleRedirect = (e, url) => {
 contextMenu({});
 
 ipcMain.on('toMain', (event, arg) => {
-  // console.log(arg);
-  let writeStream = fs.createWriteStream('template.eml');
+  let writeStream = fs.createWriteStream('template.eml','utf8');
   writeStream.write(arg);
   let res = 'write complete';
   writeStream.on('error', (err) => {

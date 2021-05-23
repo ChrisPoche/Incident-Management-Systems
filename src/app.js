@@ -33,21 +33,28 @@ textArea.addEventListener('paste', (e) => {
     // console.log(paste)
     let table = paste.substring(paste.indexOf('<table'), paste.indexOf('</table') + 8);
     // console.log(table);
-    
+    let header = table.substring(table.indexOf('<span')).substring(table.substring(table.indexOf('<span')).indexOf('>')+1,table.substring(table.indexOf('<span')).indexOf('</span>')).split(' – ').map(s => s.trim());
+    // console.log(header);
+    let status = `(${header[0]})`;
+    let priority = header[1];
+    let ticketNumber = table.substring(table.indexOf('<a')).substring(table.substring(table.indexOf('<a')).indexOf('>')+1,table.substring(table.indexOf('<a')).indexOf('</a>'));
+    let account = header[2];
+    let subject = `${status} - ${priority} - ${ticketNumber} - ${account}`;
+
     if (table.indexOf('<table') !== -1) {
         downloadBTN.style.visibility = 'visible';
         downloadBTN.addEventListener('click', (e) => {
             downloadBTN.style.visibility = 'hidden';
             let email = {
                 to: 'test@test.com',
-                subject: 'Subject to Change',
+                subject,
                 body: '<html><body>' + table + '</body></html>'
             }
 
             let emailText = 'To: ' + email.to + '\n';
             emailText += 'Subject: ' + email.subject + '\n';
             emailText += 'X-Unsent: 1' + '\n';
-            emailText += 'Content-Type: text/html' + '\n';
+            emailText += 'Content-Type: text/html; charset="UTF-8"' + '\n';
             emailText += '' + '\n';
             emailText += email.body;
 
@@ -60,7 +67,7 @@ textArea.addEventListener('paste', (e) => {
                     let a = document.createElement('a');
                     a.href = '../template.eml';
                     a.id = 'file-link';
-                    a.download = 'template'+time.getHours()+'-'+time.getMinutes()+'-'+time.getSeconds()+'.eml'; // will eventually be subject with timestamp 
+                    a.download = subject.replace(/\s/g,'')+'_'+time.getHours()+'_'+time.getMinutes()+'_'+time.getSeconds()+'.eml';
                     a.style.visibility = 'hidden';
                     document.body.appendChild(a);
                     document.getElementById('file-link').click();
