@@ -1,0 +1,18 @@
+{
+  "name": "incident-management-day-to-day",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "Chris Poche",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^12.0.8"
+  },
+  "dependencies": {
+    "electron-context-menu": "^3.1.0"
+  }
+}
