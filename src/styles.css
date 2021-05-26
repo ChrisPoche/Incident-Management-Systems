@@ -118,7 +118,7 @@ a {
   62.5% { opacity: 0; }
   100% { opacity:1; }
 }
-.animate-template {
+.animate-main {
     -webkit-animation: fadeIn 8s forwards;
     -moz-animation: fadeIn 8s forwards;
    -o-animation: fadeIn 8s forwards;
