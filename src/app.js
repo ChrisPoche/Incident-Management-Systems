@@ -41,7 +41,7 @@ const pasteEvent = (e) => {
 
         let currentDateCheck = currentUpdateDate.getMonth() + '/' + currentUpdateDate.getDate() + '/' + currentUpdateDate.getFullYear();
         let nowDateCheck = now.getMonth() + '/' + now.getDate() + '/' + now.getFullYear();
-        
+
         // Inserting 4 indexes before Current Update for Next Update - date, time, content, cadence
         csLines.splice(1, 0, csLines[1].replace(currentDateString, nowDateString));
         csLines.splice(2, 0, csLines[3].replace(csLines[3].substring(csLines[3].indexOf('>') + 1).substring(0, csLines[3].substring(csLines[3].indexOf('>') + 1).indexOf('</span>')), '[H:MM AM/PM]'));
@@ -50,31 +50,49 @@ const pasteEvent = (e) => {
         csLines[7].indexOf('14.0pt') === -1 ? csLines.splice(4, 0, csLines[7].replace(csLines[7].substring(csLines[7].indexOf('>') + 1).substring(0, csLines[7].substring(csLines[7].indexOf('>') + 1).indexOf('</span>')), 'The next update on this issue will come no later than [H:MM AM/PM]')) : csLines.splice(4, 0, csLines[5].replace(csLines[5].substring(csLines[5].indexOf('>') + 1).substring(0, csLines[5].substring(csLines[5].indexOf('>') + 1).indexOf('</span>')), 'The next update on this issue will come no later than [H:MM AM/PM]'));
 
 
-        if (status !== '(STARTED)') {
-
-            csLines[7] = csLines[7].substring(0, csLines[7].indexOf('<p')) + csLines[csLines.length - 1].substring(csLines[csLines.length - 1].indexOf('<p'));
-
+        if (status !== '(STARTED)' && status !== '(STARTED/RESOLVED)') {
+            if (status.indexOf('RESOLVED') === -1) csLines[7] = csLines[7].substring(0, csLines[7].indexOf('<p')) + csLines[csLines.length - 1].substring(csLines[csLines.length - 1].indexOf('<p'));
             // Grab 3 elements from Prior Update to move to Previous Updates Section 
             let prevDate = csLines[csLines.length - 3];
             let prevTime = csLines[csLines.length - 2];
             let startedBoilerplate = false;
             let resolvedBoilerplate = false;
             // Indication of Started email from New Incident boilerplate - need to push all rows down one with addition of boilerplate
-            console.log(prevTime.indexOf('Please consider this incident') !== -1)
             if (prevTime.indexOf('inform you of a new') !== -1 || prevTime.indexOf('Please consider this incident') !== -1) {
                 prevDate = csLines[csLines.length - 4];
                 prevTime = csLines[csLines.length - 3];
-                if (prevTime.indexOf('inform you of a new') !== -1) startedBoilerplate = csLines[csLines.length - 2]
+                if (prevTime.indexOf('inform you of a new') !== -1) startedBoilerplate = csLines[csLines.length - 2];
+                if (prevDate.indexOf(' Root Cause Analysis') !== -1) {
+                    prevDate = currentUpdateDate.toLocaleDateString('en-US', options);
+                }
                 if (prevTime.indexOf('Please consider this incident') !== -1) resolvedBoilerplate = csLines[csLines.length - 2]
             }
             let prevContent = csLines[csLines.length - 1].substring(0, csLines[csLines.length - 1].indexOf('</td>'));
+
+            let prevUpdateFirstRow;
+            // Prev Update is Started
+            if (status === '(RESOLVED)') {
+                const findNextUpdateTime = (e) => e.indexOf('come no later than') !== -1;
+                let nextUpdateTimeRow = csLines.findIndex(findNextUpdateTime) + 1;
+                
+                prevUpdateFirstRow = csLines[nextUpdateTimeRow + 2].indexOf('Please consider this incident') !== -1 ? nextUpdateTimeRow + 5 : nextUpdateTimeRow + 6;
+                
+                if (csLines[prevUpdateFirstRow + 1].indexOf('inform you of a new') !== -1) {
+                    prevDate = csLines[5];
+                    prevTime = csLines[prevUpdateFirstRow];
+                    startedBoilerplate = csLines[prevUpdateFirstRow + 1];
+                    prevContent = csLines[prevUpdateFirstRow + 2];
+                }
+                if (csLines[csLines.length - 2].indexOf('inform you of a new') !== -1) {
+                    prevTime = csLines[prevUpdateFirstRow + 1];
+                    startedBoilerplate = csLines[prevUpdateFirstRow + 2];
+                    prevContent = csLines[prevUpdateFirstRow + 3];
+                    csLines.pop();
+                }
+            }
+
             // Remove last 3-4 - next update time boilerplate (Current) and previous update's date, time and content
             csLines.pop(); csLines.pop(); csLines.pop();
-            console.log(csLines[csLines.length-1])
-            console.log(csLines[csLines.length-2])
-            console.log(csLines[csLines.length-3])
-            console.log(csLines[csLines.length-4])
-            console.log(csLines[csLines.length-5])
             // If second date is the same as today, there won't be a date header, and only 3 rows need to be popped, this checks whether the Next Update Time boilerplate exists
             if (csLines[csLines.length - 2].indexOf('come no later than') !== -1) {
                 csLines.pop();
@@ -148,9 +166,7 @@ const pasteEvent = (e) => {
             // Rebuild table
             sections.splice(psTableRow, 1, psLines.join('<span'));
         }
-        if (status === '(STARTED)') {
-
-
+        if (status === '(STARTED)' || status === '(STARTED/RESOLVED)') {
             if (currentDateCheck !== nowDateCheck) {
                 // Check that format to center date exists in Next Update Time 
                 if (csLines[4].indexOf('align' === -1)) {
@@ -165,18 +181,14 @@ const pasteEvent = (e) => {
                     csLines[4] = csLines[4].replace(csLines[4].substring(csLines[4].indexOf('<p')), "<p class=xxxxmsonormal style='line-height:10%'>&nbsp;<o:p></o:p></p><p class=xxxxmsolistparagraph><b>");
                 }
             }
-            
+
 
             if (csLines[csLines.length - 1].indexOf('come no later than') !== -1) {
                 csLines.pop();
             }
-            console.log('might be a Started Email')
         };
-        console.log(csLines.join('<span'));
         sections.splice(csTableRow, 1, csLines.join('<span'));
         table = sections.join('<tr')
-        // console.log(table);
-
 
         let downloadBTN;
         if (table.indexOf('<table') !== -1 && table.indexOf('<script') === -1) {
@@ -207,7 +219,6 @@ const pasteEvent = (e) => {
                 window.api.send('toMain', emailText);
 
                 window.api.receive("fromMain", (data) => {
-                    // console.log(`Status: ${data}`);
                     let time = new Date();
                     if (data[0] === 'write complete') {
                         let a = document.createElement('a');
@@ -258,9 +269,6 @@ clearBTN.addEventListener('click', (e) => {
     if (document.getElementById('download-button') !== null) document.getElementById('download-button').remove();
 });
 
-
-
-
 // inputFile.addEventListener('change', (f) => {
 //     let input = f.target;
 //     console.log(input);
@@ -274,10 +282,3 @@ clearBTN.addEventListener('click', (e) => {
 
 //     reader.readAsText(input.files[0]);
 // })
-
-//-------------------------------
-// Logic to Check if date exists for next update - keep for Prev Updates Section
-// let prevDate;
-// let secondDate = lines[5].indexOf('AM') === -1 && lines[5].indexOf('PM') === -1;
-// if (secondDate) {
-//}
