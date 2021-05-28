@@ -90,3 +90,9 @@ ipcMain.on('toMain', (event, arg) => {
   event.reply('fromMain', res);
   writeStream.end();
 })
+ipcMain.on('toRead', (event, arg) => { 
+  let readStream = fs.readFile(arg,'utf8', function (error, data) {
+    if (error) throw error;
+    event.reply('fromRead', data)
+  });
+});

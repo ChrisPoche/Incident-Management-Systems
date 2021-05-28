@@ -50,7 +50,21 @@ textarea {
   top: 2vh;
   right: 0px;
   padding-right: 0;
-}  
+  pointer-events: all;
+}
+#drag-n-drop {
+  height: 97.5vh;
+  width: 650px;
+  position: fixed;
+  top: .7vh;
+  padding-right: 0;
+  border-radius: 2%;
+  border: 4px dashed rgba(0, 0, 0, 0);
+
+}
+#drag-n-drop.highlight {
+  border-color: #F8981D;
+}
 a {
   color: -webkit-link;
   cursor: pointer;

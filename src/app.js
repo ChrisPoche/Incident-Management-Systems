@@ -8,13 +8,51 @@ const addTemplateToDOM = () => {
     template.style.right = `-${template.offsetWidth - template.clientWidth}px`;
 }
 
-window.addEventListener('load', addTemplateToDOM)
+const parseFile = (file) => {
+    window.api.send('toRead', file[0].path);
+    window.api.receive('fromRead', (str) => {
+        modifyTable(str[0]);
+    })
+    document.getElementById('drag-n-drop').remove();
+};
 
-const pasteEvent = (e) => {
-    let paste = (e.clipboardData || window.clipboardData).getData('text/html');
-    let table = paste.substring(paste.indexOf('<table'), paste.indexOf('</table') + 8);
+const createDragAndDropArea = () => {
+    let dragAndDrop = document.getElementById('drag-n-drop');
+    dragAndDrop.style.right = `${template.offsetWidth - template.clientWidth}px`;
+    dragAndDrop.style.width = `${template.clientWidth - (template.offsetWidth - template.clientWidth) + 2}px`;
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(et => {
+        dragAndDrop.addEventListener(et, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+    ['dragenter', 'dragover'].forEach(et => {
+        dragAndDrop.addEventListener(et, () => {
+            dragAndDrop.classList.add('highlight');
+            document.getElementById('template').style.pointerEvents = 'none';
+        });
+    });
+    ['dragleave', 'drop'].forEach(et => {
+        dragAndDrop.addEventListener(et, () => dragAndDrop.classList.remove('highlight'));
+    });
+    dragAndDrop.addEventListener('drop', (e) => {
+        addTemplateToDOM();
+        document.getElementById('template').style.pointerEvents = 'all';
+        let dataTransfer = e.dataTransfer;
+        let file = dataTransfer.files;
+        parseFile(file);
+    });
+}
+
+window.addEventListener('load', () => {
+    addTemplateToDOM();
+    createDragAndDropArea();
+})
+
+const modifyTable = (html) => {
+    let table = html.substring(html.indexOf('<table'), html.indexOf('</table') + 8);
     if (table.indexOf('<table') !== -1) {
-        e.target.remove()
+        document.getElementById('textArea').remove();
 
         // Grab values and concat subject
         let header = table.substring(table.indexOf('<span')).substring(table.substring(table.indexOf('<span')).indexOf('>') + 1, table.substring(table.indexOf('<span')).indexOf('</span>')).split(' – ').map(s => s.trim());
@@ -74,9 +112,9 @@ const pasteEvent = (e) => {
             if (status === '(RESOLVED)') {
                 const findNextUpdateTime = (e) => e.indexOf('come no later than') !== -1;
                 let nextUpdateTimeRow = csLines.findIndex(findNextUpdateTime) + 1;
-                
+
                 prevUpdateFirstRow = csLines[nextUpdateTimeRow + 2].indexOf('Please consider this incident') !== -1 ? nextUpdateTimeRow + 5 : nextUpdateTimeRow + 6;
-                
+
                 if (csLines[prevUpdateFirstRow + 1].indexOf('inform you of a new') !== -1) {
                     prevDate = csLines[5];
                     prevTime = csLines[prevUpdateFirstRow];
@@ -230,12 +268,16 @@ const pasteEvent = (e) => {
                         document.getElementById('file-link').click();
                     }
                 });
+                // location.reload();
             }, { once: true });
             document.getElementById('left-column').appendChild(downloadBTN);
             document.getElementById('clear-button').style.visibility = 'visible';
-        }
-
+        };
     };
+}
+const pasteEvent = (e) => {
+    let paste = (e.clipboardData || window.clipboardData).getData('text/html');
+    modifyTable(paste);
 };
 
 const textAreaModified = (e) => {
@@ -248,7 +290,6 @@ const textAreaModified = (e) => {
     }
 }
 
-// let inputFile = document.getElementById('fileInput');
 let textArea = document.getElementById('textArea');
 textArea.addEventListener('change', textAreaModified);
 textArea.addEventListener('input', textAreaModified);
@@ -258,6 +299,8 @@ let clearBTN = document.getElementById('clear-button');
 clearBTN.addEventListener('click', (e) => {
     if (document.getElementById('textArea') !== null) document.getElementById('textArea').remove();
     addTemplateToDOM();
+    let dragAndDropEl = document.createElement('div');
+    dragAndDropEl.id = "drag-n-drop";
     let textAreaEl = document.createElement('textarea')
     textAreaEl.id = "textArea";
     textAreaEl.placeholder = "Copy / Paste the entire last update email here";
@@ -265,20 +308,8 @@ clearBTN.addEventListener('click', (e) => {
     textAreaEl.addEventListener('input', textAreaModified);
     textAreaEl.addEventListener('paste', pasteEvent);
     document.getElementById('form-inputs').appendChild(textAreaEl);
+    document.getElementById('main-process').appendChild(dragAndDropEl);
+    createDragAndDropArea();
     clearBTN.style.visibility = 'hidden';
     if (document.getElementById('download-button') !== null) document.getElementById('download-button').remove();
 });
-
-// inputFile.addEventListener('change', (f) => {
-//     let input = f.target;
-//     console.log(input);
-
-//     let reader = new FileReader();
-//     reader.onload = () => {
-//         var output = reader.result;
-//         // let val = output.split('/').filter((i) => i.length > 1).filter((v,i) => i > 1).map(v => atob(v));
-//         console.log(output);
-//     }
-
-//     reader.readAsText(input.files[0]);
-// })
