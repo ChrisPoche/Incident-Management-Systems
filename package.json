@@ -1,18 +1,53 @@
 {
   "name": "incident-management-day-to-day",
   "version": "1.0.0",
-  "description": "",
+  "description": "An app to help with the day to day tasks for Incident Management with Relativity ODA.",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "keywords": [],
   "author": "Chris Poche",
   "license": "ISC",
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.33",
+    "@electron-forge/maker-deb": "^6.0.0-beta.33",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.33",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.33",
+    "@electron-forge/maker-zip": "^6.0.0-beta.33",
     "electron": "^12.0.8"
   },
   "dependencies": {
-    "electron-context-menu": "^3.1.0"
+    "electron-context-menu": "^3.1.0",
+    "electron-squirrel-startup": "^1.0.0"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "incident_management_day_to_day"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
   }
 }

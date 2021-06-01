@@ -148,8 +148,8 @@ const modifyTable = (html) => {
         let priority = header[1];
         let ticketNumber = table.substring(table.indexOf('<a')).substring(table.substring(table.indexOf('<a')).indexOf('>') + 1, table.substring(table.indexOf('<a')).indexOf('</a>'));
         let account = header[2];
-        let subject = `${status} - ${priority} - ${ticketNumber} - ${account}`;
-
+        // Build subject after download button is clicked below
+ 
         // Move down Current Update
         let sections = table.split('<tr');
         let focusSection = 'Current ';
@@ -395,10 +395,15 @@ const modifyTable = (html) => {
                 let timeSubmitted = new Date(Math.round(time.getTime() / (1000 * 60 * 5)) * (1000 * 60 * 5)).toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' });
                 let updateTime = [...template.querySelectorAll('span')].filter(s => s.innerHTML.indexOf('[') !== -1)[0];
                 updateTime.innerHTML = timeSubmitted;
+                let headerStatus = document.getElementById('status-dropdown').value;
+                document.getElementById('status-text').innerHTML = headerStatus;
+                let emailBody = document.getElementById('right-column').innerHTML;
+                status = `(${headerStatus})`;                
+                let subject = `${status} - ${priority} - ${ticketNumber} - ${account}`;
                 let email = {
-                    to: 'test@test.com',
+                    to: configEmailTo || 'test@test.com', // configEmailTo is variable from config.js which is included in the .gitignore file
                     subject,
-                    body: '<html><body>' + document.getElementById('right-column').innerHTML + '</body></html>'
+                    body: '<html><body>' + emailBody + '</body></html>'
                 }
 
                 let emailText = 'To: ' + email.to + '\n';
@@ -414,7 +419,8 @@ const modifyTable = (html) => {
                     let time = new Date();
                     if (data[0] === 'write complete') {
                         let a = document.createElement('a');
-                        a.href = '../template.eml';
+                        //a.href = '../template.eml'; // local test link
+                        a.href = '../../../template.eml'; // desktop app link
                         a.id = 'file-link';
                         a.download = subject.replace(/\s/g, '') + '_' + time.getHours() + '_' + time.getMinutes() + '_' + time.getSeconds() + '.eml';
                         a.style.visibility = 'hidden';

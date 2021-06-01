@@ -1,3 +1,5 @@
 /template.eml
 /node_modules
 /src/template.html
+out/
+/src/config.js
