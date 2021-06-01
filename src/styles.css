@@ -43,7 +43,7 @@ textarea {
 #clear-button {
   top: 24%;
 }
-#template {
+#right-column {
   overflow-y: auto;
   height: 96vh;
   position: fixed;

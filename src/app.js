@@ -1,11 +1,24 @@
+let store = {
+    pane: 'start'
+}
+
 const addTemplateToDOM = () => {
     let partial = "<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;mso-yfti-tbllook:1184;mso-padding-alt:0in 0in 0in 0in'> <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'> <td width=623 valign=top style='width:467.5pt;border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'> <p class=xxxxmsonormal style='line-height:10%'>&nbsp;<o:p></o:p> </p> <p class=xxxxmsonormal align=center style='text-align:center;line-height: 105%'><b><span style='font-size:18.0pt;line-height:105%;font-family:\"Arial\",sans-serif'>[STATUS] – [P#] – [Account Name]</span></b> <o:p></o:p> </p> <p class=xxxxmsonormal align=center style='text-align:center;line-height: 10%'>&nbsp;<o:p></o:p> </p> <p class=xxxxmsonormal align=center style='text-align:center;line-height: 105%'><span style='font-size:18.0pt;line-height:105%;font-family:\"Arial\",sans-serif'>[Major Incident Subject]</span> <o:p></o:p> </p> <p class=xxxxmsonormal align=center style='text-align:center;line-height: 105%'><span style='font-size:18.0pt;line-height:105%;font-family:\"Arial\",sans-serif'>[m/d/yyyy HH:MM AM/PM]</span> <o:p></o:p> </p> <p class=xxxxmsonormal style='line-height:10%'>&nbsp;<o:p></o:p> </p> </td> </tr> <tr style='mso-yfti-irow:1'> <td width=623 valign=top style='width:467.5pt;border:solid windowtext 1.0pt; border-top:none;background:#F8981D;padding:0in 5.4pt 0in 5.4pt'> <p class=xxxxmsonormal align=center style='text-align:center;line-height: 105%'><span style='font-size:16.0pt;line-height:105%;font-family:\"Arial\",sans-serif; color:white'>Client Impact</span> <o:p></o:p> </p> </td> </tr> <tr style='mso-yfti-irow:2'> <td width=623 valign=top style='width:467.5pt;border:solid windowtext 1.0pt; border-top:none;padding:0in 5.4pt 0in 5.4pt'> <p class=xxxxmsonormal style='margin-left:.5in;line-height:10%'>&nbsp;<o:p></o:p> </p> <p class=xxxxmsonormal style='line-height:105%'><span style='font-family: \"Arial\",sans-serif'>[The Client/internal team has reported that...]<br> <br> <i><span style='color:red'>`You can put highlight text or errors by encapsulating the text with backticks`</span></i> <o:p></o:p> </span></p> <p class=xxxxmsonormal style='line-height:10%'>&nbsp;<o:p></o:p> </p> </td> </tr> <tr style='mso-yfti-irow:3'> <td width=623 valign=top style='width:467.5pt;border:solid windowtext 1.0pt; border-top:none;background:#00A5DB;padding:0in 5.4pt 0in 5.4pt'> <p class=xxxxmsonormal align=center style='text-align:center;line-height: 105%'><span style='font-size:16.0pt;line-height:105%;font-family:\"Arial\",sans-serif; color:white'>Resources</span> <o:p></o:p> </p> </td> </tr> <tr style='mso-yfti-irow:4'> <td width=623 valign=top style='width:467.5pt;border:solid windowtext 1.0pt; border-top:none;padding:0in 5.4pt 0in 5.4pt'> <p class=xxxxmsonormal style='line-height:10%'><span style='font-family:\"Arial\",sans-serif'>&nbsp; <o:p></o:p> </span></p> <p class=xxxxmsonormal style='line-height:105%'><b><span style='font-size: 12.0pt;line-height:105%;font-family:\"Arial\",sans-serif;color:black'>Salesforce Ticket:&nbsp;</span></b><span style='font-family:\"Arial\",sans-serif'><a>[01234567]</a> <o:p></o:p> </span></p> <p class=xxxxmsonormal style='line-height:105%'><b><span style='font-family: \"Arial\",sans-serif'>Jira Ticket: </span></b><span style='font-family:\"Arial\",sans-serif'><a target=\"_blank\">[REL-123456]</a> <o:p></o:p> </span></p> <p class=xxxxmsonormal style='line-height:105%'><b><span style='font-family: \"Arial\",sans-serif'>Slack Channel: </span></b><span style='font-family:\"Arial\",sans-serif'><a target=\"_blank\">#[p2-01234567-acount-name]</a> <o:p></o:p> </span></p> <p class=xxxxmsonormal style='line-height:105%'><b><span style='font-family: \"Arial\",sans-serif'>Caused by CR: </span></b><span style='font-family:\"Arial\",sans-serif'>[Yes/No]<o:p></o:p></span> </p> <p class=xxxxmsolistparagraph style='line-height:10%'><span style='font-family: \"Arial\",sans-serif'>&nbsp;<o:p></o:p></span></p> </td> </tr> <tr style='mso-yfti-irow:5'> <td width=623 valign=top style='width:467.5pt;border:solid windowtext 1.0pt; border-top:none;background:#666666;padding:0in 5.4pt 0in 5.4pt'> <p class=xxxxmsonormal align=center style='text-align:center;line-height: 105%'><span style='font-size:16.0pt;line-height:105%;font-family:\"Arial\",sans-serif; color:white'>Current &amp; Prior Update</span> <o:p></o:p> </p> </td> </tr> <tr style='mso-yfti-irow:6'> <td width=623 valign=top style='width:467.5pt;border:solid windowtext 1.0pt; border-top:none;padding:0in 5.4pt 0in 5.4pt'> <p class=xxxxmsonormal style='line-height:10%'>&nbsp;<o:p></o:p> </p> <p class=xxxxmsonormal align=center style='text-align:center;line-height: 105%'><b><span style='font-size:14.0pt;line-height:105%;font-family:\"Arial\",sans-serif'>[Today's Date: mmm d, yyyy]</span></b> <o:p></o:p> </p> <p class=xxxxmsolistparagraph><b><span style='font-size:12.0pt;font-family: \"Arial\",sans-serif'>[H:MM AM/PM]</span></b> <o:p></o:p> </p> <p class=xxxxmsolistparagraph><span style='font-family:\"Arial\",sans-serif'>[This is where the current update will go...]</span> <o:p></o:p> </p> <p class=xxxxmsolistparagraph style='line-height:105%'><span style='font-family:\"Arial\",sans-serif'>The next update on this issue will come no later than [H:MM AM/PM].</span> <o:p></o:p> </p> <p class=xxxxmsolistparagraph style='line-height:10%'>&nbsp;<o:p></o:p> </p> <p class=xxxxmsonormal align=center style='text-align:center;line-height: 105%'><b><span style='font-size:14.0pt;line-height:105%;font-family:\"Arial\",sans-serif'>[Last Update Date: mmm d, yyyy]</span></b> <o:p></o:p> </p> <p class=xxxxmsolistparagraph><b><span style='font-size:12.0pt;font-family: \"Arial\",sans-serif'>[H:MM AM/PM]</span></b> <o:p></o:p> </p> <p class=xxxxmsolistparagraph><span style='font-family:\"Arial\",sans-serif'>[This is where you'll see the last update]</span> <o:p></o:p> </p> <p class=xxxxmsolistparagraph style='line-height:10%'>&nbsp;<o:p></o:p> </p> </td> </tr> <tr style='mso-yfti-irow:7'> <td width=623 valign=top style='width:467.5pt;border:solid windowtext 1.0pt; border-top:none;background:#F8981D;padding:0in 5.4pt 0in 5.4pt'> <p class=xxxxmsonormal align=center style='text-align:center;line-height: 105%'><span style='font-size:16.0pt;line-height:105%;font-family:\"Arial\",sans-serif; color:white'>Incident Response Team</span> <o:p></o:p> </p> </td> </tr> <tr style='mso-yfti-irow:8'> <td width=623 valign=top style='width:467.5pt;border:solid windowtext 1.0pt; border-top:none;padding:0in 5.4pt 0in 5.4pt'> <p class=xxxxmsonormal style='line-height:10%'>&nbsp;<o:p></o:p> </p> <p class=xxxxmsonormal style='line-height:75%'><b><span style='font-family: \"Arial\",sans-serif'>Support</span></b> <o:p></o:p> </p> </p> <p class=xxxxmsonormal style='line-height:75%'><b><span style='font-family: \"Arial\",sans-serif'>[You'll add involved teams here]</span></b> <o:p></o:p> </p> <p class=xxxxmsonormal style='line-height:10%'>&nbsp;<o:p></o:p> </p> </td> </tr> <tr style='mso-yfti-irow:9'> <td width=623 valign=top style='width:467.5pt;border:solid windowtext 1.0pt; border-top:none;background:#00A5DB;padding:0in 5.4pt 0in 5.4pt'> <p class=xxxxmsonormal align=center style='text-align:center;line-height: 105%'><span style='font-size:16.0pt;line-height:105%;font-family:\"Arial\",sans-serif; color:white'>Previous Updates</span> <o:p></o:p> </p> </td> </tr> <tr style='mso-yfti-irow:10;mso-yfti-lastrow:yes'> <td width=623 valign=top style='width:467.5pt;border:solid windowtext 1.0pt; border-top:none;padding:0in 5.4pt 0in 5.4pt'> <p class=xxxxmsonormal style='line-height:10%'>&nbsp;<o:p></o:p> </p> <p class=xxxxmsonormal align=center style='text-align:center;line-height: 105%'><b><span style='font-size:14.0pt;line-height:105%;font-family:\"Arial\",sans-serif'>[Previous Update Date: mmm d, yyyy]</span></b> <o:p></o:p> </p> <p class=xxxxmsolistparagraph><b><span style='font-size:12.0pt;font-family: \"Arial\",sans-serif'>[H:MM AM/PM]</span></b> <o:p></o:p> </p> <p class=xxxxmsolistparagraph><span style='font-family:\"Arial\",sans-serif'>[You'll see all previous updates to the last one below]</span> <o:p></o:p> </p> <p class=xxxxmsolistparagraph style='line-height:10%'>&nbsp;<o:p></o:p> </p> <p class=xxxxmsolistparagraph><b><span style='font-size:12.0pt;font-family: \"Arial\",sans-serif'>[H:MM AM/PM]</span></b> <o:p></o:p> </p> <p class=xxxxmsolistparagraph><span style='font-family:\"Arial\",sans-serif'>This message is to inform you of a new [P#] incident which has been initiated for [Account Name].</span> <o:p></o:p> </p> <p class=xxxxmsolistparagraph style='margin-bottom:12.0pt'><span style='font-family:\"Arial\",sans-serif'>[This is the first update]</span> <o:p></o:p> </p> <p class=xxxxmsolistparagraph style='line-height:10%'>&nbsp;<o:p></o:p> </p> </td> </tr> </table>"
-    let template = document.getElementById('template');
+    let template = document.getElementById('right-column');
     // Populate template from partial
     template.innerHTML = partial;
     // Remove the scroll bar from field of view for template
     template.style.paddingRight = `${template.offsetWidth - template.clientWidth + 10}px`;
     template.style.right = `-${template.offsetWidth - template.clientWidth}px`;
+    // Create form and textarea
+    let formWrapper = document.createElement('form');
+    formWrapper.id = 'form-inputs';
+    let textArea = document.createElement('textarea');
+    textArea.id = 'textArea';
+    textArea.placeholder = 'Copy / Paste the entire last update email here';
+    formWrapper.appendChild(textArea);
+    document.getElementById('left-column').appendChild(formWrapper);
+    addListernerToTextarea();
 }
 
 const parseFile = (file) => {
@@ -17,7 +30,9 @@ const parseFile = (file) => {
 };
 
 const createDragAndDropArea = () => {
-    let dragAndDrop = document.getElementById('drag-n-drop');
+    let dragAndDrop = document.createElement('div');
+    dragAndDrop.id = 'drag-n-drop';
+    let template = document.getElementById('right-column');
     dragAndDrop.style.right = `${template.offsetWidth - template.clientWidth}px`;
     dragAndDrop.style.width = `${template.clientWidth - (template.offsetWidth - template.clientWidth) + 2}px`;
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(et => {
@@ -37,11 +52,19 @@ const createDragAndDropArea = () => {
     });
     dragAndDrop.addEventListener('drop', (e) => {
         addTemplateToDOM();
-        document.getElementById('template').style.pointerEvents = 'all';
+        document.getElementById('right-column').style.pointerEvents = 'all';
         let dataTransfer = e.dataTransfer;
         let file = dataTransfer.files;
         parseFile(file);
     });
+    document.getElementById('main-process').appendChild(dragAndDrop);
+    // Hide drag and drop area to allow template to be scrolled
+    dragAndDrop.addEventListener('mouseenter', () => {
+        dragAndDrop.style.visibility = 'hidden';
+    })
+    template.addEventListener('mouseleave', () => {
+        dragAndDrop.style.visibility = 'visible';
+    })
 }
 
 window.addEventListener('load', () => {
@@ -231,7 +254,7 @@ const modifyTable = (html) => {
         let downloadBTN;
         if (table.indexOf('<table') !== -1 && table.indexOf('<script') === -1) {
             // Replace template with table
-            let template = document.getElementById('template');
+            let template = document.getElementById('right-column');
             template.innerHTML = table;
 
             // Download Button Actions
@@ -272,6 +295,7 @@ const modifyTable = (html) => {
             }, { once: true });
             document.getElementById('left-column').appendChild(downloadBTN);
             document.getElementById('clear-button').style.visibility = 'visible';
+            document.getElementById('drag-n-drop').remove();
         };
     };
 }
@@ -290,17 +314,17 @@ const textAreaModified = (e) => {
     }
 }
 
-let textArea = document.getElementById('textArea');
-textArea.addEventListener('change', textAreaModified);
-textArea.addEventListener('input', textAreaModified);
-textArea.addEventListener('paste', pasteEvent);
+const addListernerToTextarea = () => {
+    let textArea = document.getElementById('textArea');
+    textArea.addEventListener('change', textAreaModified);
+    textArea.addEventListener('input', textAreaModified);
+    textArea.addEventListener('paste', pasteEvent);
+}
 let clearBTN = document.getElementById('clear-button');
 
 clearBTN.addEventListener('click', (e) => {
     if (document.getElementById('textArea') !== null) document.getElementById('textArea').remove();
     addTemplateToDOM();
-    let dragAndDropEl = document.createElement('div');
-    dragAndDropEl.id = "drag-n-drop";
     let textAreaEl = document.createElement('textarea')
     textAreaEl.id = "textArea";
     textAreaEl.placeholder = "Copy / Paste the entire last update email here";
@@ -308,7 +332,6 @@ clearBTN.addEventListener('click', (e) => {
     textAreaEl.addEventListener('input', textAreaModified);
     textAreaEl.addEventListener('paste', pasteEvent);
     document.getElementById('form-inputs').appendChild(textAreaEl);
-    document.getElementById('main-process').appendChild(dragAndDropEl);
     createDragAndDropArea();
     clearBTN.style.visibility = 'hidden';
     if (document.getElementById('download-button') !== null) document.getElementById('download-button').remove();
