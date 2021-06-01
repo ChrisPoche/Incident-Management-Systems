@@ -52,6 +52,9 @@ textarea {
   padding-right: 0;
   pointer-events: all;
 }
+#right-column.no-pointer {
+  pointer-events: none;
+}
 #drag-n-drop {
   height: 97.5vh;
   width: 650px;
@@ -60,7 +63,10 @@ textarea {
   padding-right: 0;
   border-radius: 2%;
   border: 4px dashed rgba(0, 0, 0, 0);
-
+  visibility: visible;
+}
+#drag-n-drop.hidden {
+  visibility: hidden;
 }
 #drag-n-drop.highlight {
   border-color: #F8981D;
