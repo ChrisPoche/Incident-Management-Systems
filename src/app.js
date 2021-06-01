@@ -8,7 +8,7 @@ const loadPage = (page) => {
         createDragAndDropArea();
         createFormInput();
     }
-    console.log("We're on page:", page);
+    // console.log("We're on page:", page);
 }
 
 window.addEventListener('load', () => {

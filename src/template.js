@@ -1,3 +1,70 @@
+let templateStore = {};
+
+const resizeTextArea = (e) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = e.target.scrollHeight + 'px';
+}
+
+const addHighlightsToEditable = () => {
+    let template = document.getElementsByTagName('table')[0];
+    let spans = [...template.querySelectorAll('span')].filter(s => s.innerHTML.indexOf('[') !== -1);
+    for (let i = 1; i < spans.length; i++) {
+        spans[i].classList.add('edit-highlight');
+        spans[i].addEventListener('click', (e) => {
+            e.stopPropagation();
+            let currentFocus;
+            let surroundingText = spans[i].innerHTML.substr(0, spans[i].innerHTML.indexOf('['));
+            let classes = [...e.target.classList];
+            console.log(classes);
+            if (classes.length > 1) {
+                currentFocus = classes.filter(c => c !== 'edit-highlight')[0];
+                console.log('already clicked on this', currentFocus);
+            }
+            else if (surroundingText === 'The next update on this issue will come no later than ') {
+                spans[i].classList.add('nextUpdateString');
+                currentFocus = 'nextUpdateString';
+                console.log('First time clicking on next update string');
+            }
+            else if (surroundingText === '') {
+                spans[i].classList.add('currentUpdateText');
+                currentFocus = 'currentUpdateText';
+                console.log('First time clicking on current update text');
+            }
+
+            let input = currentFocus === 'currentUpdateText' ? document.createElement('textarea') : document.createElement('input');
+            input.id = 'active-input';
+            input.classList.add('inline-edit');
+            let placeholder = spans[i].innerHTML.substr(spans[i].innerHTML.indexOf('['));
+            input.placeholder = placeholder;
+            spans[i].innerHTML = currentFocus === 'nextUpdateString' ? 'The next update on this issue will come no later than ' : '';
+            input.value = templateStore[currentFocus] ? templateStore[currentFocus].replace(/<br>/g, '\n') : '';
+
+            spans[i].appendChild(input);
+            document.getElementById('active-input').addEventListener('focus', resizeTextArea);
+            spans[i].classList.remove('edit-highlight');
+            document.getElementById('active-input').focus();
+
+            document.getElementById('active-input').addEventListener('keyup', resizeTextArea);
+
+            input.addEventListener('blur', (e) => {
+                let value = !!e.target.value.match(/[.,:!?]$/) ? e.target.value.substr(0, e.target.value.length - 1).trim() : e.target.value.trim();
+                if (value.length === 0) {
+                    spans[i].innerHTML += currentFocus === 'nextUpdateString' ? '[H:MM AM/PM]' : "[The next update's text goes here...]";
+                    templateStore[currentFocus] = null;
+                }
+                else if (value.length > 0) {
+                    console.log(value);
+                    value = value.replace(/[\n\r]/g, '<br>');
+                    spans[i].innerHTML += value + '.';
+                    templateStore[currentFocus] = value;
+                }
+                spans[i].classList.add('edit-highlight');
+                document.getElementById('active-input').remove();
+            })
+        });
+    }
+}
+
 const createFormInput = () => {
     let formWrapper = document.createElement('form');
     formWrapper.id = 'form-inputs';
@@ -17,6 +84,7 @@ const addTemplateToDOM = () => {
     // Remove the scroll bar from field of view for template
     template.style.paddingRight = `${template.offsetWidth - template.clientWidth + 10}px`;
     template.style.right = `-${template.offsetWidth - template.clientWidth}px`;
+    // addHighlightsToEditable();
 }
 
 const parseFile = (file) => {
@@ -238,20 +306,83 @@ const modifyTable = (html) => {
                     csLines[4] = csLines[4].replace(csLines[4].substring(csLines[4].indexOf('<p')), "<p class=xxxxmsonormal style='line-height:10%'>&nbsp;<o:p></o:p></p><p class=xxxxmsolistparagraph><b>");
                 }
             }
-
-
             if (csLines[csLines.length - 1].indexOf('come no later than') !== -1) {
                 csLines.pop();
             }
+            csLines[csLines.length - 1] = csLines[csLines.length - 1].substr(0, csLines[csLines.length - 1].indexOf('<p')) + "<p class=xxxxmsonormal style='line-height:10%'>&nbsp;<o:p></o:p></p>";
         };
         sections.splice(csTableRow, 1, csLines.join('<span'));
-        table = sections.join('<tr')
+        table = sections.join('<tr');
 
         let downloadBTN;
         if (table.indexOf('<table') !== -1 && table.indexOf('<script') === -1) {
             // Replace template with table
             let template = document.getElementById('right-column');
             template.innerHTML = table;
+
+            // Add drop menu for Status
+            let headerNode = document.getElementById('right-column').querySelector('span');
+            headerNode.innerHTML = "<span id='status-text'>" + header[0] + "</span>" + headerNode.innerHTML.substring(header[0].length);
+            let statusOptions = ['Started', 'Ongoing', 'Resolved', 'Started/Resolved', 'Reopen', 'Suspend Communication']
+            let dropdown = document.createElement('select');
+            dropdown.id = 'status-dropdown';
+            statusOptions.forEach(status => {
+                let option = document.createElement('option');
+                option.value = status.toUpperCase();
+                option.label = status.toUpperCase();
+                dropdown.appendChild(option);
+            })
+            document.getElementById('status-text').innerText = '';
+            console.log(header[0])
+            switch (header[0]) {
+                case 'STARTED':
+                    dropdown.value = 'ONGOING';
+                    break;
+                case 'ONGOING':
+                    dropdown.value = 'ONGOING';
+                    break;
+                case 'STARTED/RESOLVED':
+                    dropdown.value = 'REOPEN';
+                    break;
+                case 'SUSPENDED COMMUNICATION':
+                    dropdown.value = 'REOPEN';
+                    break;
+                case 'RESOLVED':
+                    dropdown.value = 'REOPEN';
+                    break;
+                default:
+                    dropdown.value = 'STARTED';
+                    break;
+            }
+            document.getElementById('status-text').appendChild(dropdown);
+            let selectWidth = {
+                STARTED: 112,
+                ONGOING: 118,
+                RESOLVED: 130,
+                STARTEDRESOLVED: 249,
+                REOPEN: 102,
+                SUSPENDCOMMUNICATION: 330
+            }
+            let select = document.getElementById('status-dropdown');
+            select.style.width = selectWidth[dropdown.value.replace('/', '').replace(' ', '')] + 'px';
+            // Fix styling offset caused by highlight border
+            select.addEventListener('mouseover', (e) => select.style.width = (selectWidth[dropdown.value.replace('/', '').replace(' ', '')] + 4) + 'px');
+            select.addEventListener('mouseleave', (e) => select.style.width = selectWidth[dropdown.value.replace('/', '').replace(' ', '')] + 'px');
+            // Change select width to match length of text
+            select.addEventListener('change', (e) => {
+                e.target.style.width = selectWidth[e.target.value.replace('/', '').replace(' ', '')] + 'px';
+                if (e.target.value === 'RESOLVED') {
+                    let pNode = document.getElementsByClassName('edit-highlight')[0].parentNode;
+                    let cloneEL = pNode.cloneNode(true);
+                    cloneEL.id = 'resolved-boilerplate';
+                    cloneEL.firstChild.classList.remove('edit-highlight');
+                    cloneEL.firstChild.innerText = 'Please consider this incident resolved.';
+                    pNode.parentNode.insertBefore(cloneEL,pNode);
+                };
+                if (e.target.value !== 'RESOLVED' && document.getElementById('resolved-boilerplate')) {
+                    document.getElementById('resolved-boilerplate').remove();
+                }
+            });
 
             // Download Button Actions
             downloadBTN = document.createElement('button');
@@ -260,10 +391,14 @@ const modifyTable = (html) => {
             downloadBTN.style.visibility = 'visible';
             downloadBTN.addEventListener('click', (e) => {
                 document.getElementById('download-button').remove();
+                let time = new Date();
+                let timeSubmitted = new Date(Math.round(time.getTime() / (1000 * 60 * 5)) * (1000 * 60 * 5)).toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' });
+                let updateTime = [...template.querySelectorAll('span')].filter(s => s.innerHTML.indexOf('[') !== -1)[0];
+                updateTime.innerHTML = timeSubmitted;
                 let email = {
                     to: 'test@test.com',
                     subject,
-                    body: '<html><body>' + table + '</body></html>'
+                    body: '<html><body>' + document.getElementById('right-column').innerHTML + '</body></html>'
                 }
 
                 let emailText = 'To: ' + email.to + '\n';
@@ -289,6 +424,7 @@ const modifyTable = (html) => {
                 });
                 location.reload();
             }, { once: true });
+            addHighlightsToEditable();
             document.getElementById('left-column').appendChild(downloadBTN);
             document.getElementById('clear-button').style.visibility = 'visible';
             document.getElementById('drag-n-drop').remove();
@@ -331,5 +467,6 @@ clearBTN.addEventListener('click', (e) => {
     document.getElementById('form-inputs').appendChild(textAreaEl);
     createDragAndDropArea();
     clearBTN.style.visibility = 'hidden';
+    templateStore = {};
     if (document.getElementById('download-button') !== null) document.getElementById('download-button').remove();
 });
