@@ -3,3 +3,4 @@
 /src/template.html
 out/
 /src/config.js
+/package-lock.json
